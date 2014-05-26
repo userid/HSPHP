@@ -18,7 +18,7 @@ namespace HSPHP;
  * @author  Nuzhdin Urii <nuzhdin.urii@gmail.com>
  */
 
-class Pipeline implements ReadCommandsInterface, WriteCommandsInterface
+class Pipeline implements ReadCommandsInterface#, WriteCommandsInterface
 {
     /**
      * @var array
@@ -77,7 +77,7 @@ class Pipeline implements ReadCommandsInterface, WriteCommandsInterface
     /**
      * {@inheritdoc}
      */
-    public function select($index, $compare, $keys, $limit = 1, $begin = 0, $in = array())
+    public function select($index, $compare, $keys, $limit = 1, $begin = 0, $in = array(), $filter=array())
     {
         $this->addToQueue(array('method' => 'select', 'args' => func_get_args()));
     }
@@ -109,7 +109,7 @@ class Pipeline implements ReadCommandsInterface, WriteCommandsInterface
     /**
      * {@inheritdoc}
      */
-    public function openIndex($index, $db, $table, $key, $fields)
+    public function openIndex($index, $db, $table, $key, $fields, $filter_fields)
     {
         $this->addToQueue(array('method' => 'openIndex', 'args' => func_get_args()));
     }
@@ -117,7 +117,7 @@ class Pipeline implements ReadCommandsInterface, WriteCommandsInterface
     /**
      * {@inheritdoc}
      */
-    public function getIndexId($db, $table, $key, $fields)
+    public function getIndexId($db, $table, $key, $fields, $filter_fields=array())
     {
         return $this->socket->getIndexId($db, $table, $key, $fields);
     }

@@ -221,7 +221,7 @@ class ReadSocket implements ReadCommandsInterface
     /**
      * {@inheritdoc}
      */
-    public function openIndex($index, $db, $table, $key, $fields)
+    public function openIndex($index, $db, $table, $key, $fields, $filter_fields)
     {
         if (empty($key)) {
             $key = 'PRIMARY';
@@ -232,7 +232,9 @@ class ReadSocket implements ReadCommandsInterface
                 $this->encodeString($db),
                 $this->encodeString($table),
                 $this->encodeString($key),
-                $this->encodeString($fields)
+                $this->encodeString($fields),
+                $this->encodeString($filter_fields),
+
             )) . self::EOL
         );
     }
@@ -240,20 +242,23 @@ class ReadSocket implements ReadCommandsInterface
     /**
      * {@inheritdoc}
      */
-    public function getIndexId($db, $table, $key, $fields)
+    public function getIndexId($db, $table, $key, $fields, $filter_fields=array())
     {
         if (is_array($fields)) {
             $fields = implode(',', $fields);
         }
+        if (is_array($filter_fields)) {
+            $filter_fields = implode(',', $filter_fields);
+        }
 
-        if (isset($this->indexes[$db][$table][$key][$fields])) {
-            return $this->indexes[$db][$table][$key][$fields];
+        if (isset($this->indexes[$db][$table][$key][$fields][$filter_fields])) {
+            return $this->indexes[$db][$table][$key][$fields][$filter_fields];
         } else {
             //register new index ,save it and return
-            $this->openIndex($this->currentIndex, $db, $table, $key, $fields);
+            $this->openIndex($this->currentIndex, $db, $table, $key, $fields, $filter_fields);
             $ret = $this->readResponse();
             if (!$ret instanceof ErrorMessage) {
-                $this->indexes[$db][$table][$key][$fields] = $this->currentIndex++;
+                $this->indexes[$db][$table][$key][$fields][$filter_fields] = $this->currentIndex++;
                 return $this->currentIndex - 1;
             } else {
                 throw $ret;
@@ -264,7 +269,7 @@ class ReadSocket implements ReadCommandsInterface
     /**
      * {@inheritdoc}
      */
-    public function select($index, $compare, $keys, $limit = 1, $begin = 0, $in = array())
+    public function select($index, $compare, $keys, $limit = 1, $begin = 0, $in = array(), $filter=array())
     {
         $ivlen = count($in);
 
@@ -274,7 +279,7 @@ class ReadSocket implements ReadCommandsInterface
             $query .= self::SEP . $this->encodeString((string)$key);
         }
 
-        if ($begin > 0 || $ivlen > 0) {
+        if ($begin > 0 || $ivlen > 0 || count($filter)>0) {
             $query .= self::SEP . (($ivlen > 0) ? $ivlen : $limit) . self::SEP . $begin;
         } else {
             if ($limit > 1) {
@@ -288,6 +293,10 @@ class ReadSocket implements ReadCommandsInterface
             foreach($in as $value) {
                 $query .= self::SEP . $this->encodeString((string)$value);
             }
+        }
+
+        if (count($filter)>0){
+            $query .= self::SEP . 'F' . self::SEP . $filter[0] . self::SEP .  $filter[1] .  self::SEP . $this->encodeString((string) $filter[2]);
         }
 
         $this->sendStr($query . self::EOL);

@@ -16,6 +16,7 @@ run the following in your php project directory:
         php composer.phar require tz-lom/hsphp --no-update
 
 # Usage Examples
+(removed write operations.)
 
 ## Select
 
@@ -34,62 +35,3 @@ $c->select($id, '=', array(0), 0, 0, array(1,42,3));
 $response = $c->readResponse();
 ```
 
-## Update
-
-```php
-$c = new \HSPHP\WriteSocket();
-$c->connect('localhost',9999);
-$id = $c->getIndexId('data_base_name','table_name','','k,v');
-$c->update($id,'=',array(100500),array(100500,42)); // Update row(k,v) with id 100500 to  k = 100500, v = 42
-$response = $c->readResponse(); // Has 1 if OK
-```
-
-## Batch update
-
-```php
-$c = new \HSPHP\WriteSocket();
-$c->connect('localhost',9999);
-$id = $c->getIndexId('data_base_name','table_name','','k,v');
-$c->update($id,'=',array(100500),array(100500,42), 2, 0, array(100501, 100502)); // Update rows where k IN (100501, 100502)
-$response = $c->readResponse(); // Has 1 if OK
-```
-
-## Delete
-
-```php
-$c = new \HSPHP\WriteSocket();
-$c->connect('localhost',9999);
-$id = $c->getIndexId('data_base_name','table_name','','k,v');
-$c->delete($id,'=',array(100500));
-$response = $c->readResponse(); //return 1 if OK
-```
-
-## Insert
-
-```php
-$c = new \HSPHP\WriteSocket();
-$c->connect('localhost',9999);
-$id = $c->getIndexId('data_base_name','table_name','','k,v');
-$c->insert($id,array(100500,'test\nvalue'));
-$response = $c->readResponse(); //return array() if OK
-```
-
-## Increment
-
-```php
-$c = new \HSPHP\WriteSocket();
-$c->connect('localhost',9999);
-$id = $c->getIndexId('data_base_name','table_name','','v');
-$c->increment($id,'=',array(100500),array(2)); // Increment v column by 2
-$response = $c->readResponse(); // Has 1 if OK
-```
-
-## Decrement
-
-```php
-$c = new \HSPHP\WriteSocket();
-$c->connect('localhost',9999);
-$id = $c->getIndexId('data_base_name','table_name','','v');
-$c->decrement($id,'=',array(100500),array(2)); // Decrement v column by 2
-$response = $c->readResponse(); // Has 1 if OK
-```

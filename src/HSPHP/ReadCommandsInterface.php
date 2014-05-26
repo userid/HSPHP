@@ -31,7 +31,7 @@ interface ReadCommandsInterface
      *
      * @return void
      */
-    public function openIndex($index, $db, $table, $key, $fields);
+    public function openIndex($index, $db, $table, $key, $fields, $filter_fields);
 
     /**
      * Register index Id in socket and return it,caches indexes for future use
@@ -43,7 +43,7 @@ interface ReadCommandsInterface
      *
      * @return integer
      */
-    public function getIndexId($db, $table, $key, $fields);
+    public function getIndexId($db, $table, $key, $fields , $filter_fields=array());
 
     /**
      * Perform select command using compare method for keys
@@ -59,5 +59,5 @@ interface ReadCommandsInterface
      *
      * @return void
      */
-    public function select($index, $compare, $keys, $limit = 1, $begin = 0, $in = array());
+    public function select($index, $compare, $keys, $limit = 1, $begin = 0, $in = array(), $filter=array());
 }
